@@ -1,21 +1,40 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
-
+import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors'
+import userRoutes from './routes/userRoutes';
+// Create an Express application
 const app = express();
+require("dotenv").config()
+const PORT = process.env.PORT;
+const mongo_url = process.env.MONGO_URL
 
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
+//middleware to enable CORS
+app.use(cors())
 
-const PORT = process.env.PORT || 3000;
+// Middleware to parse JSON bodies
+app.use(express.json());
+app.use(express.urlencoded({extended:true}))
+app.use(cors({credentials:true,origin:"http://localhost:3000"}))
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+//Mount the routes.
+app.use('/api/users',userRoutes)
+
+// Define routes
+app.get('/', (req: Request, res: Response) => {
+  res.send("Helloo world this is my server .");
 });
 
-app.listen(PORT, () => {
-  console.log("Server is running on port 4000");
+
+// Start the server
+app.listen(PORT, async () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+  try {
+    await mongoose.connect(mongo_url as string)
+    console.log("DataBase is successfully connected.")
+    
+  } catch (error) {
+    console.log("Error to connect Database.")
+    
+  }
+ 
 });
